@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <title>📢 اطلاع‌رسانی کارکنان</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js')
+                .then(() => console.log('✅ Service Worker registered'))
+                .catch(err => console.log('❌ SW error:', err));
+        }
+    </script>
+</head>
+<body>
+    
+    <!-- ===== HEADER ===== -->
+    <header class="header" id="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">📢</span>
+                    <span class="logo-text">اطلاع‌رسانی</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="loadNotifications()" title="بروزرسانی">
+                        🔄
+                    </button>
+                    <button class="btn-install" id="installBtn" style="display:none;" onclick="installApp()">
+                        📲 نصب
+                    </button>
+                </div>
+            </div>
+            
+            <div class="header-status">
+                <div class="status-item">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">متصل</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">📨 پیام‌ها:</span>
+                    <span class="status-value" id="notifCount">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">🕐 آخرین:</span>
+                    <span class="status-value" id="lastTime">-</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+        <div class="container">
+            <!-- بخش پیام‌ها -->
+            <div class="notifications-section">
+                <div class="section-header">
+                    <h2>📨 پیام‌های جدید</h2>
+                    <span class="badge" id="newBadge">۰</span>
+                </div>
+                
+                <div class="notifications-container" id="notificationsContainer">
+                    <!-- توسط JS پر می‌شود -->
+                </div>
+            </div>
+            
+            <!-- بخش تاریخچه -->
+            <div class="history-section">
+                <div class="section-header">
+                    <h2>📜 تاریخچه پیام‌ها</h2>
+                    <button class="btn-toggle" onclick="toggleHistory()">
+                        ▼ نمایش
+                    </button>
+                </div>
+                <div class="history-container" id="historyContainer" style="display:none;">
+                    <!-- توسط JS پر می‌شود -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast">
+        <div class="toast-icon">🔔</div>
+        <div class="toast-content">
+            <div class="toast-title">پیام جدید</div>
+            <div class="toast-message" id="toastMessage">از طرف مدیریت</div>
+        </div>
+    </div>
+
+    <!-- ===== FLOATING BUTTON ===== -->
+    <button class="fab" id="fabButton" onclick="scrollToTop()" title="بازگشت به بالا">
+        ⬆
+    </button>
+
+    <!-- ===== SCRIPT ===== -->
+    <script src="/static/script.js"></script>
+    
+</body>
+</html>

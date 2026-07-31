@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#6C63FF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
@@ -12,17 +12,11 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="/static/manifest.json">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- CSS -->
     <link rel="stylesheet" href="/static/style.css">
-    
-    <!-- Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/static/service-worker.js')
-                .then(() => console.log('✅ Service Worker registered'))
-                .catch(err => console.log('❌ SW error:', err));
-        }
-    </script>
 </head>
 <body>
     
@@ -35,11 +29,11 @@
                     <span class="logo-text">اطلاع‌رسانی</span>
                 </div>
                 <div class="header-actions">
-                    <button class="btn-refresh" onclick="loadNotifications()" title="بروزرسانی">
-                        🔄
+                    <button class="btn-icon" onclick="loadNotifications()" title="بروزرسانی">
+                        <i class="fas fa-sync-alt"></i>
                     </button>
                     <button class="btn-install" id="installBtn" style="display:none;" onclick="installApp()">
-                        📲 نصب
+                        <i class="fas fa-download"></i> نصب
                     </button>
                 </div>
             </div>
@@ -50,12 +44,13 @@
                     <span id="statusText">متصل</span>
                 </div>
                 <div class="status-item">
-                    <span class="status-label">📨 پیام‌ها:</span>
+                    <i class="fas fa-inbox"></i>
                     <span class="status-value" id="notifCount">0</span>
+                    <span class="status-label">جدید</span>
                 </div>
                 <div class="status-item">
-                    <span class="status-label">🕐 آخرین:</span>
-                    <span class="status-value" id="lastTime">-</span>
+                    <i class="fas fa-bell" id="notificationStatus"></i>
+                    <span id="pushStatus">غیرفعال</span>
                 </div>
             </div>
         </div>
@@ -64,30 +59,60 @@
     <!-- ===== MAIN CONTENT ===== -->
     <main class="main">
         <div class="container">
-            <!-- بخش پیام‌ها -->
-            <div class="notifications-section">
+            
+            <!-- ===== دکمه فعال‌سازی اعلان ===== -->
+            <div class="push-section" id="pushSection">
+                <div class="push-card">
+                    <div class="push-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="push-content">
+                        <h3>فعال‌سازی اعلان‌های مرورگر</h3>
+                        <p>با فعال‌سازی، حتی وقتی صفحه بسته است هم پیام‌ها را دریافت کنید</p>
+                    </div>
+                    <button class="btn-push" id="pushBtn" onclick="subscribePush()">
+                        <i class="fas fa-bell"></i> فعال‌سازی اعلان
+                    </button>
+                </div>
+            </div>
+            
+            <!-- ===== بخش پیام‌های جدید ===== -->
+            <section class="section new-section">
                 <div class="section-header">
-                    <h2>📨 پیام‌های جدید</h2>
-                    <span class="badge" id="newBadge">۰</span>
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-bell"></i></span>
+                        <h2>پیام‌های جدید</h2>
+                        <span class="badge" id="newBadge">۰</span>
+                    </div>
+                    <button class="btn-clear" id="clearAllBtn" onclick="markAllAsRead()" style="display:none;">
+                        <i class="fas fa-check-double"></i> خوانده شد
+                    </button>
                 </div>
                 
                 <div class="notifications-container" id="notificationsContainer">
                     <!-- توسط JS پر می‌شود -->
                 </div>
-            </div>
+            </section>
             
-            <!-- بخش تاریخچه -->
-            <div class="history-section">
+            <!-- ===== بخش تاریخچه ===== -->
+            <section class="section history-section">
                 <div class="section-header">
-                    <h2>📜 تاریخچه پیام‌ها</h2>
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-history"></i></span>
+                        <h2>تاریخچه</h2>
+                        <span class="badge history-badge" id="historyBadge">۰</span>
+                    </div>
                     <button class="btn-toggle" onclick="toggleHistory()">
-                        ▼ نمایش
+                        <i class="fas fa-chevron-down" id="historyToggleIcon"></i>
+                        <span id="historyToggleText">نمایش</span>
                     </button>
                 </div>
+                
                 <div class="history-container" id="historyContainer" style="display:none;">
                     <!-- توسط JS پر می‌شود -->
                 </div>
-            </div>
+            </section>
+            
         </div>
     </main>
 
@@ -98,11 +123,12 @@
             <div class="toast-title">پیام جدید</div>
             <div class="toast-message" id="toastMessage">از طرف مدیریت</div>
         </div>
+        <button class="toast-close" onclick="closeToast()"><i class="fas fa-times"></i></button>
     </div>
 
     <!-- ===== FLOATING BUTTON ===== -->
     <button class="fab" id="fabButton" onclick="scrollToTop()" title="بازگشت به بالا">
-        ⬆
+        <i class="fas fa-arrow-up"></i>
     </button>
 
     <!-- ===== SCRIPT ===== -->
